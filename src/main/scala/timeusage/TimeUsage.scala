@@ -6,7 +6,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
 /** Main class */
-object TimeUsage {
+object  TimeUsage {
 
   import org.apache.spark.sql.SparkSession
   import org.apache.spark.sql.functions._
@@ -62,15 +62,18 @@ object TimeUsage {
     *         have type Double. None of the fields are nullable.
     * @param columnNames Column names of the DataFrame
     */
-  def dfSchema(columnNames: List[String]): StructType =
-    ???
+  def dfSchema(columnNames: List[String]): StructType = {
+    val firstField = StructField(columnNames.head, StringType, nullable = false)
+    val fields = columnNames.tail.map(columnName => StructField(columnName, IntegerType, nullable = false))
+    StructType(firstField :: fields)
+  }
 
 
   /** @return An RDD Row compatible with the schema produced by `dfSchema`
     * @param line Raw fields
     */
   def row(line: List[String]): Row =
-    ???
+    Row.fromSeq(line)
 
   /** @return The initial data frame columns partitioned in three groups: primary needs (sleeping, eating, etc.),
     *         work and other (leisure activities)
