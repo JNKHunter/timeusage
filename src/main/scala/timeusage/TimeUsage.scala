@@ -91,7 +91,44 @@ object  TimeUsage {
     *    “t10”, “t12”, “t13”, “t14”, “t15”, “t16” and “t18” (those which are not part of the previous groups only).
     */
   def classifiedColumns(columnNames: List[String]): (List[Column], List[Column], List[Column]) = {
-    ???
+
+    val primaryPrefixes = Array("t01", "t03", "t11", "t1801", "t1803")
+    val workingPrefixes = Array("t05","t1805")
+    val otherPrefixes = Array("t02", "t04", "t06", "t07", "t08", "t09", "t10", "t12", "t13", "t14", "t15", "t16", "t18")
+
+    var primaryNeeds: List[Column] = List()
+    var workingActivities: List[Column] = List()
+    var otherActivities: List[Column] = List()
+
+    columnNames.foreach(columnName => {
+      var found = false
+      primaryPrefixes.foreach(primaryPrefix => {
+        if(columnName.startsWith(primaryPrefix)) {
+          primaryNeeds = col(columnName) :: primaryNeeds
+          found = true
+        }
+      })
+
+      workingPrefixes.foreach(workingPrefix => {
+        if(!found) {
+          if(columnName.startsWith(workingPrefix)) {
+            workingActivities = col(columnName) :: workingActivities
+            found = true
+          }
+
+        }
+
+      })
+
+      otherPrefixes.foreach(otherPrefix => {
+        if(!found) {
+          if(columnName.startsWith(otherPrefix)) otherActivities = col(columnName) :: otherActivities
+        }
+      })
+    })
+
+
+    (primaryNeeds, workingActivities, otherActivities)
   }
 
   /** @return a projection of the initial DataFrame such that all columns containing hours spent on primary needs
