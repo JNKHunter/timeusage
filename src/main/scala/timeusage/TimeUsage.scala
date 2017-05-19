@@ -167,13 +167,32 @@ object  TimeUsage {
     otherColumns: List[Column],
     df: DataFrame
   ): DataFrame = {
-    val workingStatusProjection: Column = ???
-    val sexProjection: Column = ???
-    val ageProjection: Column = ???
+    val workingStatusProjection: Column =
+      when($"telfs" >= 1.0 && $"telfs" < 3.0, "working")
+        .otherwise("not working")
+        .as("working")
+    val sexProjection: Column =
+      when($"tesex" equalTo(1), "male")
+        .otherwise("female")
+        .as("sex")
+    val ageProjection: Column =
+      when($"teage" <= 15 && $"teage" < 22, "young")
+        .when($"teage" <= 23 && $"teage" < 55, "active")
+        .otherwise("elder")
+        .as("age")
 
-    val primaryNeedsProjection: Column = ???
-    val workProjection: Column = ???
-    val otherProjection: Column = ???
+    val primaryNeedsProjection: Column =
+      primaryNeedsColumns.reduce(_ + _)
+        .divide(60)
+        .as("primaryNeeds")
+    val workProjection: Column =
+      workColumns.reduce(_ + _)
+        .divide(60)
+        .as("work")
+    val otherProjection: Column =
+      otherColumns.reduce(_ + _)
+        .divide(60)
+        .as("other")
     df
       .select(workingStatusProjection, sexProjection, ageProjection, primaryNeedsProjection, workProjection, otherProjection)
       .where($"telfs" <= 4) // Discard people who are not in labor force
